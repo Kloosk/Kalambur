@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Container = styled.div`
 
 `;
-const Canvas = () => {
+const ModeNormal = () => {
     return (
         <Container>
 
@@ -12,4 +12,4 @@ const Canvas = () => {
     );
 };
 
-export default Canvas;
+export default ModeNormal;
