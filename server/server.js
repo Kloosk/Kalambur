@@ -17,6 +17,12 @@ io.on('connection', (socket) => {
     socket.on("mouse", data => {
         socket.broadcast.emit("mouse", data);
     });
+    socket.on("finishDraw", () => {
+        socket.broadcast.emit("finishDraw");
+    });
+    socket.on("startDraw", data => {
+        socket.broadcast.emit("startDraw", data);
+    });
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });

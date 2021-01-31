@@ -19,8 +19,6 @@ const Main = styled.div`
 `;
 const ModeNormal = () => {
     const initialState = {
-        x: 0,
-        y: 0,
         color: "#000000",
         line: 5,
     };

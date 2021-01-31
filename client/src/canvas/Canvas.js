@@ -14,13 +14,23 @@ const Canvas = ({state:{color,line}}) => {
     const contextRef = useRef(null);
     const [isDrawing,setIsDrawing] = useState(false);
 
-    const newDrawing = ({x,y}) => {
+    const newStartDraw = ({x,y}) => {
+        contextRef.current.beginPath();
+        contextRef.current.moveTo(x,y);
+    };
+    const newDrawing = ({x,y,color,line}) => {
         contextRef.current.lineTo(x,y);
         contextRef.current.stroke();
+        contextRef.current.strokeStyle = color;
+        contextRef.current.lineWidth = line;
     };
-
+    const newFinishDraw = () => {
+        contextRef.current.closePath();
+    };
     useEffect(() => {
         socket.on('mouse',newDrawing);
+        socket.on('startDraw',newStartDraw);
+        socket.on('finishDraw',newFinishDraw);
         const canvas = canvasRef.current;
         canvas.width = containerRef.current.offsetWidth;
         canvas.height = containerRef.current.offsetHeight;
@@ -48,20 +58,26 @@ const Canvas = ({state:{color,line}}) => {
 
     const startDrawing = ({nativeEvent}) => {
         const {offsetX,offsetY} = nativeEvent;
+        //send data by websocket
+        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line});
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX,offsetY);
         setIsDrawing(true);
     };
     const finishDrawing = () => {
+        //send data by websocket
+        socket.emit('finishDraw');
         contextRef.current.closePath();
         setIsDrawing(false);
     };
     const draw = ({nativeEvent}) => {
         if(!isDrawing) return;
         const {offsetX,offsetY} = nativeEvent;
+        //send data by websocket
+        socket.emit('mouse',{x:offsetX,y:offsetY,color,line});
+        //draw line
         contextRef.current.lineTo(offsetX,offsetY);
         contextRef.current.stroke();
-        socket.emit('mouse',{x:offsetX,y:offsetY});
     };
     return (
         <Container ref={containerRef}>
