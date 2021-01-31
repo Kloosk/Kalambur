@@ -10,6 +10,7 @@ const Container = styled.div`
    width: 100vw;
    height: 100vh;
    display: flex;
+   user-select: none;
 `;
 const Main = styled.div`
   width: 70%;
