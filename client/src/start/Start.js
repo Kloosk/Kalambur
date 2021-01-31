@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Title from "./Title/Title";
+import Buttons from "./buttons/Buttons";
 
 const Container = styled.div`
   width: 100vw;
@@ -10,15 +11,14 @@ const Container = styled.div`
   justify-content: center;
   flex-direction: column;
   background-color: #0D1117;
-`;
-const Btn = styled.button`
-  
+  overflow-x: hidden;
 `;
 
 const Start = () => {
     return (
         <Container>
              <Title/>
+             <Buttons/>
         </Container>
     );
 };

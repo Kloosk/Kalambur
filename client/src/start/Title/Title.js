@@ -39,7 +39,7 @@ const goJumpMedium = keyframes`
 `;
 const Span = styled.span`
   font-family: 'Hachi Maru Pop', cursive;
-  font-size: 60px;
+  font-size: 100px;
   text-transform: uppercase;
   letter-spacing: 4px;
   display: inline-block;
