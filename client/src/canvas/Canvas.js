@@ -1,5 +1,8 @@
 import React,{useRef,useEffect,useState} from 'react';
 import styled from 'styled-components'
+import io from "socket.io-client";
+
+const socket = io("http://localhost:4000");
 
 const Container = styled.div`
   height: 90%;
@@ -11,7 +14,13 @@ const Canvas = ({state:{color,line}}) => {
     const contextRef = useRef(null);
     const [isDrawing,setIsDrawing] = useState(false);
 
+    const newDrawing = ({x,y}) => {
+        contextRef.current.lineTo(x,y);
+        contextRef.current.stroke();
+    };
+
     useEffect(() => {
+        socket.on('mouse',newDrawing);
         const canvas = canvasRef.current;
         canvas.width = containerRef.current.offsetWidth;
         canvas.height = containerRef.current.offsetHeight;
@@ -21,14 +30,18 @@ const Canvas = ({state:{color,line}}) => {
         context.lineWidth = 5;
         contextRef.current = context;
 
+        //responsive canvas
         window.addEventListener("resize",() => {
             canvasRef.current.width = containerRef.current.offsetWidth;
             canvasRef.current.height = containerRef.current.offsetHeight;
         });
     },[]);
+    //set color in canvas
     useEffect(() => {
         contextRef.current.strokeStyle = color;
     },[color]);
+
+    //set line width in canvas
     useEffect(() => {
         contextRef.current.lineWidth = line;
     },[line]);
@@ -48,6 +61,7 @@ const Canvas = ({state:{color,line}}) => {
         const {offsetX,offsetY} = nativeEvent;
         contextRef.current.lineTo(offsetX,offsetY);
         contextRef.current.stroke();
+        socket.emit('mouse',{x:offsetX,y:offsetY});
     };
     return (
         <Container ref={containerRef}>
