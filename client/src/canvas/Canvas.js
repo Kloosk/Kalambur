@@ -5,7 +5,7 @@ const Container = styled.div`
   height: 90%;
   width: 100%;
 `;
-const Canvas = () => {
+const Canvas = ({state:{color,line}}) => {
     const containerRef = useRef(null);
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
@@ -18,7 +18,7 @@ const Canvas = () => {
         const context = canvas.getContext("2d");
         context.lineCap = "round";
         context.strokeStyle = "black";
-        context.lineWidth = 20;
+        context.lineWidth = 5;
         contextRef.current = context;
 
         window.addEventListener("resize",() => {
@@ -26,6 +26,12 @@ const Canvas = () => {
             canvasRef.current.height = containerRef.current.offsetHeight;
         });
     },[]);
+    useEffect(() => {
+        contextRef.current.strokeStyle = color;
+    },[color]);
+    useEffect(() => {
+        contextRef.current.lineWidth = line;
+    },[line]);
 
     const startDrawing = ({nativeEvent}) => {
         const {offsetX,offsetY} = nativeEvent;

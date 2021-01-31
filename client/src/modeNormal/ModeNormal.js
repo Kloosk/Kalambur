@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useReducer} from 'react';
 import styled from 'styled-components'
 import ScoreBoard from "../scoreBoard/ScoreBoard";
 import WordBar from "../wordbar/WordBar";
@@ -18,13 +18,38 @@ const Main = styled.div`
   border: 2px solid violet;
 `;
 const ModeNormal = () => {
+    const initialState = {
+        x: 0,
+        y: 0,
+        color: "#000000",
+        line: 5,
+    };
+    const reducer = (state,action) =>{
+        switch(action.type){
+            case 'SET_COLOR':{
+                return{
+                    ...state,
+                    color: action.payload
+                }
+            }
+            case 'SET_LINE':{
+                return{
+                    ...state,
+                    line: action.payload
+                }
+            }
+            default: return state
+        }
+    };
+    const [state, dispatch] = useReducer(reducer, initialState);
+
     return (
         <Container>
             <ScoreBoard/>
             <Main>
                 <WordBar/>
-                <Canvas/>
-                <Toolbar/>
+                <Canvas state={state}/>
+                <Toolbar dispatch={dispatch}/>
             </Main>
             <Chat/>
         </Container>
