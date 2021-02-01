@@ -25,7 +25,7 @@ const App = () => {
                   <Route exact path="/lobby">
                       <Lobby/>
                   </Route>
-                  <Route exact path="/normal">
+                  <Route exact path="/normal/:id">
                       <ModeNormal/>
                   </Route>
               </Switch>

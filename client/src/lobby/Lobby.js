@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components'
 import {useForm} from "react-hook-form";
+import io from "socket.io-client";
+import { useHistory } from "react-router-dom";
+
+const socket = io("http://localhost:4000");
 
 const Container = styled.div`
   width: 100vw;
@@ -92,9 +96,12 @@ const Select = styled.select`
   background: transparent;
 `;
 const Lobby = () => {
+    const history = useHistory();
     const { register, handleSubmit, errors } = useForm();
     const onSubmit = data =>{
-        console.log(data);
+        const id = "" + Math.floor(Math.random() * 1000) + Date.now();
+        socket.emit("joinRoom",id);
+        history.push(`/normal/${id}`);
     };
     return (
         <Container>
