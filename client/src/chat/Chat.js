@@ -1,10 +1,8 @@
 import React,{useState,useEffect,useRef} from 'react';
 import styled from 'styled-components'
 import "./chat.css"
-import io from "socket.io-client";
-
-const socket = io("http://localhost:4000");
-
+import {socket} from "../hooks/socketHooks";
+import {useParams} from "react-router-dom";
 const Container = styled.div`
   height: 100%;
   width: 20%;
@@ -24,6 +22,7 @@ const H1 = styled.h1`
   border-bottom: 1px solid green;
 `;
 const Chat = () => {
+    let { room } = useParams();
     const [inputValue,setInputValue] = useState("");
     const messagesRef = useRef(null);
     const addMsg = ({name,msg}) => {
@@ -54,7 +53,7 @@ const Chat = () => {
 
     const handleSend = (e) => {
         if(e.key === "Enter" && inputValue !== ""){
-            socket.emit("sendMsg",{name:"Madzia",msg:inputValue});
+            socket.emit("sendMsg",{name:"Madzia",msg:inputValue,room});
             setInputValue("");
         }
     };

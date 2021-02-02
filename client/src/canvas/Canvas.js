@@ -1,9 +1,7 @@
 import React,{useRef,useEffect,useState} from 'react';
 import styled from 'styled-components'
-import io from "socket.io-client";
+import {socket} from "../hooks/socketHooks";
 import {useParams} from "react-router-dom";
-
-const socket = io("http://localhost:4000");
 
 const Container = styled.div`
   height: 90%;

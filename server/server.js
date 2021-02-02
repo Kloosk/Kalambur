@@ -11,25 +11,12 @@ const cors = require('cors');
 //Cors
 app.use(cors());
 
-// let rooms = [
-//     {
-//         name: "rooomName",
-//         users: [
-//             {
-//                 id: socket.id,
-//                 name: "userName",
-//                 score: 0,
-//
-//             }
-//         ]
-//     }
-// ];
-
 const rooms = [];
 const users = [];
 io.on('connection', (socket) => {
     //creating room and user is join
-    socket.on("createRoom",({room,name,time,rounds})=>{
+    socket.on("createRoom",(data)=>{
+        const {mode,room, name,rounds,time} = data;
         rooms.push(
             {
                 name: room,
@@ -54,10 +41,11 @@ io.on('connection', (socket) => {
         console.log(`User with ID: ${socket.id} join to room`);
     });
     //joing user to the room
-    socket.on("joinRoom",({room,name})=>{
-        //if(rooms.find(el => el.name === room)) {
-            //const idx = rooms.findIndex(el => el.name === room);
-            //rooms[idx].userCount =  rooms[idx].userCount++;
+    socket.on("joinRoom",(data)=>{
+        const {room,name} = data;
+        if(rooms.find(el => el.name === room)) {
+            const idx = rooms.findIndex(el => el.name === room);
+            rooms[idx].userCount =  rooms[idx].userCount++;
             users.push(
                 {
                     id: socket.id,
@@ -69,9 +57,9 @@ io.on('connection', (socket) => {
             socket.join(room);
             console.log(`ID room: ${room}`);
             console.log(`Joining user with ID: ${socket.id}`);
-        //}else{
-          //  console.log("Room doesnt exist");
-        //}
+        }else{
+           console.log("Room doesnt exist");
+        }
     });
 
     socket.on("mouse", data => {
@@ -88,9 +76,9 @@ io.on('connection', (socket) => {
         console.log(`Disconnect user with ID: ${socket.id}`);
     });
     //CHAT
-    socket.on("sendMsg",({name,msg}) => {
+    socket.on("sendMsg",({name,msg,room}) => {
         console.log(msg);
-        io.to(rooms).emit("receiveMsg",{name,msg});
+        io.to(room).emit("receiveMsg",{name,msg});
     });
 
 });

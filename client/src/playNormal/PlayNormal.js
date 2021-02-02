@@ -1,8 +1,7 @@
 import React,{useState} from 'react';
 import styled from 'styled-components';
 import {useParams} from "react-router-dom";
-import io from "socket.io-client";
-const socket = io("http://localhost:4000");
+import {socket,initiateSocket} from "../hooks/socketHooks";
 
 const Container = styled.div`
   display: flex;
@@ -20,6 +19,7 @@ const PlayNormal = () => {
       setName(e.target.value);
     };
     const handleJoin = () => {
+        if(!socket) initiateSocket();
         socket.emit("joinRoom",{room,name});
     };
     return (

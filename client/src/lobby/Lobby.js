@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from 'styled-components'
 import {useForm} from "react-hook-form";
-import io from "socket.io-client";
 import { useHistory } from "react-router-dom";
-
-const socket = io("http://localhost:4000");
+import {socket,initiateSocket} from "../hooks/socketHooks";
 
 const Container = styled.div`
   width: 100vw;
@@ -99,6 +97,7 @@ const Lobby = () => {
     const history = useHistory();
     const { register, handleSubmit, errors } = useForm();
     const onSubmit = ({mode,name,rounds,time}) =>{
+        if(!socket) initiateSocket();
         const room = "" + Math.floor(Math.random() * 1000) + Date.now();
         socket.emit("createRoom",{mode,room, name,rounds,time});
         history.push(`/normal/${room}`);
