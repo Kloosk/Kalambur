@@ -11,20 +11,29 @@ const cors = require('cors');
 //Cors
 app.use(cors());
 
-let players = [];
-let rooms;
+// let rooms = [
+//     {
+//         name: "rooomName",
+//         users: [
+//             {
+//                 name: "userName",
+//                 score: 0,
+//
+//             }
+//         ]
+//     }
+// ];
 
+let rooms;
 io.on('connection', (socket) => {
-    //joining to the room
     socket.on("joinRoom",room =>{
         rooms = room;
-        socket.join(`${rooms}`);
-        console.log(`ID of room: ${rooms}`);
+        socket.join(rooms);
+        console.log(`ID room: ${rooms}`);
         console.log(`Connect user with ID: ${socket.id}`);
     });
     socket.on("mouse", data => {
-        console.log("chuj kurwa")
-        socket.to(rooms).emit("mouse", data);
+        socket.to(rooms).broadcast.emit("mouse", data);
     });
     socket.on("finishDraw", () => {
         socket.to(rooms).broadcast.emit("finishDraw");
@@ -35,6 +44,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`Disconnect user with ID: ${socket.id}`);
     });
+    //CHAT
+    socket.on("sendMsg",({name,msg}) => {
+        console.log(msg);
+        io.to(rooms).emit("receiveMsg",{name,msg});
+    });
+
 });
 
 
