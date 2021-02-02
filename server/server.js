@@ -16,6 +16,7 @@ app.use(cors());
 //         name: "rooomName",
 //         users: [
 //             {
+//                 id: socket.id,
 //                 name: "userName",
 //                 score: 0,
 //
@@ -24,22 +25,64 @@ app.use(cors());
 //     }
 // ];
 
-let rooms;
+const rooms = [];
+const users = [];
 io.on('connection', (socket) => {
-    socket.on("joinRoom",room =>{
-        rooms = room;
-        socket.join(rooms);
-        console.log(`ID room: ${rooms}`);
-        console.log(`Connect user with ID: ${socket.id}`);
+    //creating room and user is join
+    socket.on("createRoom",({room,name,time,rounds})=>{
+        rooms.push(
+            {
+                name: room,
+                rounds,
+                time,
+                roundCount:0,//round counting
+                userCount:1, // user counting
+            }
+        );
+        users.push(
+            {
+                id:socket.id,
+                room,
+                name,
+                score: 0
+            }
+        );
+        console.log(rooms);
+        console.log(users);
+        socket.join(room);
+        console.log(`Create room: ${room}`);
+        console.log(`User with ID: ${socket.id} join to room`);
     });
+    //joing user to the room
+    socket.on("joinRoom",({room,name})=>{
+        //if(rooms.find(el => el.name === room)) {
+            //const idx = rooms.findIndex(el => el.name === room);
+            //rooms[idx].userCount =  rooms[idx].userCount++;
+            users.push(
+                {
+                    id: socket.id,
+                    room,
+                    name,
+                    score: 0
+                }
+            );
+            socket.join(room);
+            console.log(`ID room: ${room}`);
+            console.log(`Joining user with ID: ${socket.id}`);
+        //}else{
+          //  console.log("Room doesnt exist");
+        //}
+    });
+
     socket.on("mouse", data => {
-        socket.to(rooms).broadcast.emit("mouse", data);
+        console.log(data.room);
+        socket.to(data.room).broadcast.emit("mouse", data);
     });
-    socket.on("finishDraw", () => {
-        socket.to(rooms).broadcast.emit("finishDraw");
+    socket.on("finishDraw", data => {
+        socket.to(data.room).broadcast.emit("finishDraw");
     });
     socket.on("startDraw", data => {
-        socket.to(rooms).broadcast.emit("startDraw", data);
+        socket.to(data.room).broadcast.emit("startDraw", data);
     });
     socket.on('disconnect', () => {
         console.log(`Disconnect user with ID: ${socket.id}`);
