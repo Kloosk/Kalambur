@@ -38,7 +38,7 @@ const Buttons = () => {
     return (
         <Container>
             <Linkk to="/login"><Btn>Zaloguj</Btn></Linkk>
-            <Linkk to="/lobby"><Btn>Graj</Btn></Linkk>
+            <Linkk to="/createroom"><Btn>Graj</Btn></Linkk>
         </Container>
     );
 };

@@ -1,10 +1,13 @@
-import React,{useReducer} from 'react';
+import React,{useReducer,useEffect,useState} from 'react';
 import styled from 'styled-components'
 import ScoreBoard from "../scoreBoard/ScoreBoard";
 import WordBar from "../wordbar/WordBar";
 import Canvas from "../canvas/Canvas";
 import Toolbar from "../toolbar/Toolbar";
 import Chat from "../chat/Chat";
+import {socket} from "../hooks/socketHooks";
+import {useParams,useHistory} from "react-router-dom";
+import axios from 'axios';
 
 const Container = styled.div`
    width: 100vw;
@@ -18,6 +21,31 @@ const Main = styled.div`
   border: 2px solid violet;
 `;
 const ModeNormal = () => {
+    const [roomExist,setRoomExist] = useState(false); //if false room doesnt exist
+    let { room } = useParams();
+    const history = useHistory();
+    useEffect(() => {
+        if(!socket){
+            history.push(`/playnormal/${room}`);
+        }else{
+            axios.get('http://localhost:4000/api/roomexist', {
+                headers: {
+                    room
+                }
+            }).then(res => {
+                if(!res.data.room){ //room doesnt exist
+                    setRoomExist(false);
+                }else{//room exist
+                    if(!room.data.start){//game doesnt start
+                        history.push(`/lobby/${room}`);
+                    }
+                }
+            })
+            //sprawdzamy czy pokój w ogóle istnieje jeżeli nie to wyświetlamy nie ma pokoju
+            //zapytanie do axios z odpowiedzią czy gra wystartowała jeżeli tak to wyświetlamy pokój jeżeli nie to
+            //przekierowujemy do lobby
+        }
+    },[]);
     const initialState = {
         color: "#000000",
         line: 5,
@@ -42,15 +70,22 @@ const ModeNormal = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     return (
-        <Container>
-            <ScoreBoard/>
-            <Main>
-                <WordBar/>
-                <Canvas state={state}/>
-                <Toolbar dispatch={dispatch}/>
-            </Main>
-            <Chat/>
-        </Container>
+        <>
+            {(socket && roomExist) && (
+            <Container>
+                <ScoreBoard/>
+                <Main>
+                    <WordBar/>
+                    <Canvas state={state}/>
+                    <Toolbar dispatch={dispatch}/>
+                </Main>
+                <Chat/>
+            </Container>
+            )}
+            {roomExist === false && (
+                <h1>Pokój nie istnieje. Sprawdź swój link.</h1>
+            )}
+        </>
     );
 };
 

@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
 import styled from 'styled-components';
-import {useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {socket,initiateSocket} from "../hooks/socketHooks";
 
 const Container = styled.div`
@@ -13,6 +13,7 @@ const Container = styled.div`
   
 `;
 const PlayNormal = () => {
+    const history = useHistory();
     let { room } = useParams();
     const [name,setName] = useState("");
     const handleNick = e => {
@@ -21,6 +22,7 @@ const PlayNormal = () => {
     const handleJoin = () => {
         if(!socket) initiateSocket();
         socket.emit("joinRoom",{room,name});
+        history.push(`/normal/${room}`);
     };
     return (
         <Container>

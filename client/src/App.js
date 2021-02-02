@@ -5,6 +5,7 @@ import {createGlobalStyle} from "styled-components";
 import ModeNormal from "./modeNormal/ModeNormal";
 import Lobby from "./lobby/Lobby";
 import PlayNormal from "./playNormal/PlayNormal";
+import CreateRoom from "./createRoom/CreateRoom";
 
 const GlobalStyle = createGlobalStyle`
   *{
@@ -23,7 +24,10 @@ const App = () => {
                   <Route exact path="/">
                       <Start/>
                   </Route>
-                  <Route exact path="/lobby">
+                  <Route exact path="/createroom">
+                      <CreateRoom/>
+                  </Route>
+                  <Route exact path="/lobby/:room">
                       <Lobby/>
                   </Route>
                   <Route exact path="/playnormal/:room">
