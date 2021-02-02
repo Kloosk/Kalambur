@@ -96,19 +96,18 @@ const Select = styled.select`
   background: transparent;
 `;
 const Lobby = () => {
-
     const history = useHistory();
     const { register, handleSubmit, errors } = useForm();
-    const onSubmit = data =>{
-        const id = "" + Math.floor(Math.random() * 1000) + Date.now();
-        socket.emit("joinRoom",id);
-        history.push(`/normal/${id}`);
+    const onSubmit = ({mode,name,rounds,time}) =>{
+        const room = "" + Math.floor(Math.random() * 1000) + Date.now();
+        socket.emit("createRoom",{mode,room, name,rounds,time});
+        history.push(`/normal/${room}`);
     };
     return (
         <Container>
             <Flex>
                 <Settings>
-                    <H1>Poczekalnia</H1>
+                    <H1>Stwórz pokój</H1>
                     <Form onSubmit={handleSubmit(onSubmit)}>
                         <Label>
                             <FlexForm>

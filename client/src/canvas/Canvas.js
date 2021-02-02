@@ -10,7 +10,7 @@ const Container = styled.div`
   width: 100%;
 `;
 const Canvas = ({state:{color,line}}) => {
-    let { id } = useParams();
+    let { room } = useParams();
     const containerRef = useRef(null);
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
@@ -61,14 +61,14 @@ const Canvas = ({state:{color,line}}) => {
     const startDrawing = ({nativeEvent}) => {
         const {offsetX,offsetY} = nativeEvent;
         //send data by websocket
-        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line,room:id});
+        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line,room});
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX,offsetY);
         setIsDrawing(true);
     };
     const finishDrawing = () => {
         //send data by websocket
-        socket.emit('finishDraw',{room:id});
+        socket.emit('finishDraw',{room});
         contextRef.current.closePath();
         setIsDrawing(false);
     };
@@ -76,7 +76,7 @@ const Canvas = ({state:{color,line}}) => {
         if(!isDrawing) return;
         const {offsetX,offsetY} = nativeEvent;
         //send data by websocket
-        socket.emit('mouse',{x:offsetX,y:offsetY,color,line,room:id});
+        socket.emit('mouse',{x:offsetX,y:offsetY,color,line,room});
         //draw line
         contextRef.current.lineTo(offsetX,offsetY);
         contextRef.current.stroke();
