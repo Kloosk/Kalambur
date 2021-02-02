@@ -1,5 +1,9 @@
-import React from 'react';
+import React,{useState,useEffect,useRef} from 'react';
 import styled from 'styled-components'
+import "./chat.css"
+import io from "socket.io-client";
+
+const socket = io("http://localhost:4000");
 
 const Container = styled.div`
   height: 100%;
@@ -19,32 +23,49 @@ const H1 = styled.h1`
   text-transform: uppercase;
   border-bottom: 1px solid green;
 `;
-const Msg = styled.div`
-  display: flex;
-  
-`;
-const Person = styled.p`
-  font-size: 1.1rem;
-  margin-right: 5px;
-`;
-const Txt = styled.p`
-  font-size: 1.1rem;
-`;
 const Chat = () => {
+    const [inputValue,setInputValue] = useState("");
+    const messagesRef = useRef(null);
+    const addMsg = ({name,msg}) => {
+        const createMsg = document.createElement("div");
+
+        const createPerson = document.createElement("p");
+        const createText = document.createElement("p");
+
+        const personName = document.createTextNode(`${name}: `);
+        const msgText = document.createTextNode(msg);
+
+        createPerson.appendChild(personName);
+        createPerson.classList.add("person");
+        createText.appendChild(msgText);
+        createText.classList.add("txt");
+
+        createMsg.appendChild(createPerson);
+        createMsg.appendChild(createText);
+        createMsg.classList.add("msg");
+
+        messagesRef.current.appendChild(createMsg);
+
+    };
+
+    useEffect(() =>{
+        socket.on("receiveMsg",addMsg);
+    },[]);
+
+    const handleSend = (e) => {
+        if(e.key === "Enter" && inputValue !== ""){
+            socket.emit("sendMsg",{name:"Madzia",msg:inputValue});
+            setInputValue("");
+        }
+    };
+    const handleChange = e => {
+        setInputValue(e.target.value);
+    };
     return (
         <Container>
             <H1>Czat</H1>
-            <Messages>
-                <Msg>
-                    <Person>Madzia:</Person>
-                    <Txt>JD</Txt>
-                </Msg>
-                <Msg>
-                    <Person>Łukasz:</Person>
-                    <Txt>Kocham Madzie 123</Txt>
-                </Msg>
-            </Messages>
-            <Input type="text"/>
+            <Messages ref={messagesRef}></Messages>
+            <Input type="text" value={inputValue} onKeyDown={handleSend} onChange={handleChange}/>
         </Container>
     );
 };

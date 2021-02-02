@@ -1,6 +1,7 @@
 import React,{useRef,useEffect,useState} from 'react';
 import styled from 'styled-components'
 import io from "socket.io-client";
+import {useParams} from "react-router-dom";
 
 const socket = io("http://localhost:4000");
 
@@ -9,6 +10,7 @@ const Container = styled.div`
   width: 100%;
 `;
 const Canvas = ({state:{color,line}}) => {
+    let { id } = useParams();
     const containerRef = useRef(null);
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
@@ -59,14 +61,14 @@ const Canvas = ({state:{color,line}}) => {
     const startDrawing = ({nativeEvent}) => {
         const {offsetX,offsetY} = nativeEvent;
         //send data by websocket
-        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line});
+        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line,room:id});
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX,offsetY);
         setIsDrawing(true);
     };
     const finishDrawing = () => {
         //send data by websocket
-        socket.emit('finishDraw');
+        socket.emit('finishDraw',{room:id});
         contextRef.current.closePath();
         setIsDrawing(false);
     };
@@ -74,7 +76,7 @@ const Canvas = ({state:{color,line}}) => {
         if(!isDrawing) return;
         const {offsetX,offsetY} = nativeEvent;
         //send data by websocket
-        socket.emit('mouse',{x:offsetX,y:offsetY,color,line});
+        socket.emit('mouse',{x:offsetX,y:offsetY,color,line,room:id});
         //draw line
         contextRef.current.lineTo(offsetX,offsetY);
         contextRef.current.stroke();

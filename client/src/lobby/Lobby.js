@@ -96,6 +96,7 @@ const Select = styled.select`
   background: transparent;
 `;
 const Lobby = () => {
+
     const history = useHistory();
     const { register, handleSubmit, errors } = useForm();
     const onSubmit = data =>{

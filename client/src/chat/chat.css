@@ -1,0 +1,11 @@
+.msg{
+    display: flex;
+}
+.person{
+    font-size: 1.1rem;
+    margin-right: 5px;
+    color: fuchsia;
+}
+.txt{
+    font-size: 1.1rem;
+}
