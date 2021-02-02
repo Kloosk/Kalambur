@@ -13,15 +13,28 @@ app.use(cors());
 
 const rooms = [];
 const users = [];
+
+app.get("/api/roomexist",(req,res) => {
+    const headerRoom = req.headers.room;
+    const find = rooms.find(el => el.name === headerRoom);
+    if(!find){
+        return res.json({room: false});
+    }
+    return res.json({room: true,start:find.start});
+
+});
+
+
 io.on('connection', (socket) => {
     //creating room and user is join
     socket.on("createRoom",(data)=>{
         const {mode,room, name,rounds,time} = data;
         rooms.push(
             {
-                name: room,
-                rounds,
-                time,
+                name: room, //name of room
+                start: false, //status of game
+                rounds, //rounds to play
+                time, //time on drawing
                 roundCount:0,//round counting
                 userCount:1, // user counting
             }
@@ -88,5 +101,5 @@ io.on('connection', (socket) => {
 
 
 http.listen(4000, () => {
-    console.log('listening on *:4000');
+    console.log('listening on :4000');
 });
