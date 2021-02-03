@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/chat/chat.css"],"names":[],"mappings":"AAAA,KACI,YACJ,CACA,QAEI,gBAAiB,CACjB,UACJ,CACA,aAJI,gBAMJ","file":"main.678bef1c.chunk.css","sourcesContent":[".msg{\r\n    display: flex;\r\n}\r\n.person{\r\n    font-size: 1.1rem;\r\n    margin-right: 5px;\r\n    color: fuchsia;\r\n}\r\n.txt{\r\n    font-size: 1.1rem;\r\n}"]}

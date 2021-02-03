@@ -38,9 +38,11 @@ io.on('connection', (socket) => {
                 time, //time on drawing
                 roundCount:0,//round counting
                 userCount:1, // user counting
+                queue: 0, //count all users in queue
                 users:[ //all users in room
                     {
                         id:socket.id,
+                        userQueue: 1,
                         room,
                         name,
                         score: 0
@@ -66,8 +68,6 @@ io.on('connection', (socket) => {
                 }
             );
             socket.join(room);
-            //SCOREBOARD
-            socket.emit("scoreBoard",);
             console.log(`Joining user with ID: ${socket.id}`);
         }
     });
@@ -78,7 +78,19 @@ io.on('connection', (socket) => {
         if((findCreator !== undefined) && (findCreator.creator === socket.id) && (findCreator.name === room)){
             findCreator.start = true; //set status of game to start
             io.to(room).emit("startGame"); //start game
+
+            //START ROUND
+            const currentRoom = rooms.find(el => el.name === room);
+            const obj = {
+                queue: currentRoom.queue,
+
+            };
+            io.to(room).emit("startRound",{});
         }
+    });
+    //startRound
+    socket.on("startRound",data => {
+
     });
     //canvas
     socket.on("mouse", data => {
@@ -105,6 +117,7 @@ io.on('connection', (socket) => {
             const findIdx = rooms[i].users.findIndex(el => el.id === socket.id);//searching id of client
             if(findIdx !== -1){
                 rooms[i].userCount-=1;//reduce numbers of users
+                io.to(rooms[i].name).emit("receiveMsg",{name:"BOT",msg:`${rooms[i].users[findIdx].name} opuścił grę.`});//chat message
                 rooms[i].users.splice(findIdx,1); //delete client from room
                 io.to(rooms[i].name).emit("scoreBoard",rooms[i].users);//scoreboard refresh
                 break;
