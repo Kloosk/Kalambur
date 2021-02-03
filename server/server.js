@@ -32,6 +32,8 @@ io.on('connection', (socket) => {
         rooms.push(
             {
                 name: room, //name of room
+                creator: socket.id, //id of room creator
+                mode, // game mode
                 start: false, //status of game
                 rounds, //rounds to play
                 time, //time on drawing
@@ -50,6 +52,7 @@ io.on('connection', (socket) => {
         console.log(rooms);
         console.log(users);
         socket.join(room);
+        socket.emit("createRoom");
         console.log(`Create room: ${room}`);
         console.log(`User with ID: ${socket.id} join to room`);
     });
@@ -58,7 +61,7 @@ io.on('connection', (socket) => {
         const {room,name} = data;
         if(rooms.find(el => el.name === room)) {
             const idx = rooms.findIndex(el => el.name === room);
-            rooms[idx].userCount =  rooms[idx].userCount++;
+            rooms[idx].userCount =  rooms[idx].userCount + 1;
             users.push(
                 {
                     id: socket.id,
@@ -74,7 +77,19 @@ io.on('connection', (socket) => {
            console.log("Room doesnt exist");
         }
     });
-
+    //start game from lobby
+    socket.on("startGame",room => {
+        //only creator can start game
+        const findCreator = rooms.find(el => el.creator === socket.id);
+        if((findCreator !== undefined) && (findCreator.creator === socket.id) && (findCreator.name === room)){
+            console.log("znaleziono twórcę gra się rozpoczyna");
+            //set status of game to start
+            findCreator.start = true;
+            //start game
+            io.to(room).emit("startGame");
+        }
+    });
+    //canvas
     socket.on("mouse", data => {
         console.log(data.room);
         socket.to(data.room).broadcast.emit("mouse", data);
@@ -85,14 +100,24 @@ io.on('connection', (socket) => {
     socket.on("startDraw", data => {
         socket.to(data.room).broadcast.emit("startDraw", data);
     });
-    socket.on('disconnect', () => {
-        console.log(`Disconnect user with ID: ${socket.id}`);
-    });
     //CHAT
     socket.on("sendMsg",({name,msg,room}) => {
-        console.log(msg);
         io.to(room).emit("receiveMsg",{name,msg});
     });
+    socket.on('disconnect', () => {
+        // const idx = users.findIndex(el => el.id === socket.id);
+        // const roomIdx = rooms.findIndex(el => el.room === users[idx].name);
+        // if(idx !== -1 && roomIdx !== -1) {
+        //     //change counter of users in room
+        //     rooms[roomIdx].userCount = rooms[roomIdx].userCount - 1;
+        //     //delete user from array
+        //     users.splice(idx, 1);
+        // }
+        console.log(rooms);
+        console.log(users);
+        console.log(`Disconnect user with ID: ${socket.id}`);
+    });
+
 
 });
 
