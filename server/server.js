@@ -12,7 +12,6 @@ const cors = require('cors');
 app.use(cors());
 
 const rooms = [];
-const users = [];
 
 app.get("/api/roomexist",(req,res) => {
     const headerRoom = req.headers.room;
@@ -39,42 +38,35 @@ io.on('connection', (socket) => {
                 time, //time on drawing
                 roundCount:0,//round counting
                 userCount:1, // user counting
+                users:[
+                    {
+                        id:socket.id,
+                        room,
+                        name,
+                        score: 0
+                    }
+                ]
             }
         );
-        users.push(
-            {
-                id:socket.id,
-                room,
-                name,
-                score: 0
-            }
-        );
-        console.log(rooms);
-        console.log(users);
         socket.join(room);
         socket.emit("createRoom");
-        console.log(`Create room: ${room}`);
         console.log(`User with ID: ${socket.id} join to room`);
     });
     //joing user to the room
     socket.on("joinRoom",(data)=>{
         const {room,name} = data;
-        if(rooms.find(el => el.name === room)) {
-            const idx = rooms.findIndex(el => el.name === room);
-            rooms[idx].userCount =  rooms[idx].userCount + 1;
-            users.push(
+        const roomToJoin = rooms.find(el => el.name === room);
+        if(roomToJoin){
+            roomToJoin.userCount+=1;
+            roomToJoin.users.push(
                 {
                     id: socket.id,
-                    room,
                     name,
                     score: 0
                 }
             );
             socket.join(room);
-            console.log(`ID room: ${room}`);
             console.log(`Joining user with ID: ${socket.id}`);
-        }else{
-           console.log("Room doesnt exist");
         }
     });
     //start game from lobby
@@ -82,16 +74,12 @@ io.on('connection', (socket) => {
         //only creator can start game
         const findCreator = rooms.find(el => el.creator === socket.id);
         if((findCreator !== undefined) && (findCreator.creator === socket.id) && (findCreator.name === room)){
-            console.log("znaleziono twórcę gra się rozpoczyna");
-            //set status of game to start
-            findCreator.start = true;
-            //start game
-            io.to(room).emit("startGame");
+            findCreator.start = true; //set status of game to start
+            io.to(room).emit("startGame"); //start game
         }
     });
     //canvas
     socket.on("mouse", data => {
-        console.log(data.room);
         socket.to(data.room).broadcast.emit("mouse", data);
     });
     socket.on("finishDraw", data => {
@@ -104,17 +92,16 @@ io.on('connection', (socket) => {
     socket.on("sendMsg",({name,msg,room}) => {
         io.to(room).emit("receiveMsg",{name,msg});
     });
+    //DISCONNECT
     socket.on('disconnect', () => {
-        // const idx = users.findIndex(el => el.id === socket.id);
-        // const roomIdx = rooms.findIndex(el => el.room === users[idx].name);
-        // if(idx !== -1 && roomIdx !== -1) {
-        //     //change counter of users in room
-        //     rooms[roomIdx].userCount = rooms[roomIdx].userCount - 1;
-        //     //delete user from array
-        //     users.splice(idx, 1);
-        // }
-        console.log(rooms);
-        console.log(users);
+        for(let i=0; i<rooms.length; i++){
+            const findIdx = rooms[i].users.findIndex(el => el.id === socket.id);//searching id of client
+            if(findIdx !== -1){
+                rooms[i].userCount-=1;//reduce numbers of users
+                rooms[i].users.splice(findIdx,1); //delete client from room
+                break;
+            }
+        }
         console.log(`Disconnect user with ID: ${socket.id}`);
     });
 
