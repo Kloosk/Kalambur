@@ -1,5 +1,6 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import styled from 'styled-components'
+import {socket} from "../hooks/socketHooks";
 
 const Container = styled.div`
   height: 100vh;
@@ -19,6 +20,14 @@ const Nick = styled.p`
   text-align: center;
 `;
 const ScoreBoard = () => {
+    const [score,setScore] = useState([]);
+    const updateRating = () => {
+
+    };
+
+    useEffect(() => {
+       socket.on("scoreBoard",updateRating);
+    });
     return (
         <Container>
             <H1>Wyniki</H1>

@@ -33,17 +33,17 @@ const ModeNormal = () => {
                     room
                 }
             }).then(res => {
+                console.log(res);
                 if(!res.data.room){ //room doesnt exist
                     setRoomExist(false);
                 }else{//room exist
-                    if(!room.data.start){//game doesnt start
+                    if(!res.data.start){//game doesnt start
                         history.push(`/lobby/${room}`);
+                    }else{// game started
+                        setRoomExist(true);
                     }
                 }
             })
-            //sprawdzamy czy pokój w ogóle istnieje jeżeli nie to wyświetlamy nie ma pokoju
-            //zapytanie do axios z odpowiedzią czy gra wystartowała jeżeli tak to wyświetlamy pokój jeżeli nie to
-            //przekierowujemy do lobby
         }
     },[]);
     const initialState = {
