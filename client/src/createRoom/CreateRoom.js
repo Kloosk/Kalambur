@@ -94,13 +94,17 @@ const Select = styled.select`
   background: transparent;
 `;
 const CreateRoom = () => {
+    const room = "" + Math.floor(Math.random() * 1000) + Date.now();
     const history = useHistory();
+    const createRoom = () => {
+        history.push(`/lobby/${room}`);
+    };
     const { register, handleSubmit, errors } = useForm();
     const onSubmit = ({mode,name,rounds,time}) =>{
         if(!socket) initiateSocket();
-        const room = "" + Math.floor(Math.random() * 1000) + Date.now();
         socket.emit("createRoom",{mode,room, name,rounds,time});
-        history.push(`/lobby/${room}`);
+        socket.on("createRoom",createRoom);
+        //there should be loading
     };
     return (
         <Container>
