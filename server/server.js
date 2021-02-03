@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
                 time, //time on drawing
                 roundCount:0,//round counting
                 userCount:1, // user counting
-                users:[
+                users:[ //all users in room
                     {
                         id:socket.id,
                         room,
@@ -66,6 +66,8 @@ io.on('connection', (socket) => {
                 }
             );
             socket.join(room);
+            //SCOREBOARD
+            socket.emit("scoreBoard",);
             console.log(`Joining user with ID: ${socket.id}`);
         }
     });
@@ -92,6 +94,11 @@ io.on('connection', (socket) => {
     socket.on("sendMsg",({name,msg,room}) => {
         io.to(room).emit("receiveMsg",{name,msg});
     });
+    //SCOREBOARD
+    socket.on("scoreBoard",room => {
+       const getRoom = rooms.find(el => el.name === room);
+       io.to(room).emit("scoreBoard",getRoom.users);
+    });
     //DISCONNECT
     socket.on('disconnect', () => {
         for(let i=0; i<rooms.length; i++){
@@ -99,6 +106,7 @@ io.on('connection', (socket) => {
             if(findIdx !== -1){
                 rooms[i].userCount-=1;//reduce numbers of users
                 rooms[i].users.splice(findIdx,1); //delete client from room
+                io.to(rooms[i].name).emit("scoreBoard",rooms[i].users);//scoreboard refresh
                 break;
             }
         }
@@ -107,10 +115,6 @@ io.on('connection', (socket) => {
 
 
 });
-
-
-
-
 
 http.listen(4000, () => {
     console.log('listening on :4000');
