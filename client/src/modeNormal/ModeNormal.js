@@ -8,6 +8,7 @@ import Chat from "../chat/Chat";
 import {socket} from "../hooks/socketHooks";
 import {useParams,useHistory} from "react-router-dom";
 import axios from 'axios';
+import {useSelector} from "react-redux";
 
 const Container = styled.div`
    width: 100vw;
@@ -21,9 +22,22 @@ const Main = styled.div`
   border: 2px solid violet;
 `;
 const ModeNormal = () => {
+    const [drawOn,setDraw] = useState(false); //set ability to draw
+    const userName = useSelector(state => state.user.name); //get username
     const [roomExist,setRoomExist] = useState(false); //if false room doesnt exist
     let { room } = useParams();
     const history = useHistory();
+
+    const startRound = name => {
+        console.log(`server name: ${name}`);
+        console.log(`client name: ${userName}`);
+        if(name === userName){
+            setDraw(true);
+        }
+    };
+
+
+
     useEffect(() => {
         if(!socket){
             history.push(`/playnormal/${room}`);
@@ -33,7 +47,6 @@ const ModeNormal = () => {
                     room
                 }
             }).then(res => {
-                console.log(res);
                 if(!res.data.room){ //room doesnt exist
                     setRoomExist(false);
                 }else{//room exist
@@ -41,6 +54,7 @@ const ModeNormal = () => {
                         history.push(`/lobby/${room}`);
                     }else{// game started
                         setRoomExist(true);
+                        socket.on("startRound",startRound);
                     }
                 }
             })
@@ -76,7 +90,7 @@ const ModeNormal = () => {
                 <ScoreBoard/>
                 <Main>
                     <WordBar/>
-                    <Canvas state={state}/>
+                    <Canvas state={state} drawAbility={drawOn}/>
                     <Toolbar dispatch={dispatch}/>
                 </Main>
                 <Chat/>

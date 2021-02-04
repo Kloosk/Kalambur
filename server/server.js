@@ -10,7 +10,7 @@ const io = require('socket.io')(http, {
 const cors = require('cors');
 //Cors
 app.use(cors());
-
+const words = ["abc","cba","bca","acb","madzia","jest","kochana","ucho"];
 const rooms = [];
 
 app.get("/api/roomexist",(req,res) => {
@@ -20,7 +20,23 @@ app.get("/api/roomexist",(req,res) => {
         return res.json({room: false});
     }
     return res.json({room: true,start:find.start});
+});
 
+app.get("/api/getword",(req,res) => {
+    const headerRoom = req.headers.room;
+    const find = rooms.find(el => el.name === headerRoom);
+
+    const tempWords = [];
+
+    let tempRandom = Math.floor(Math.random() * find.words.length);
+    tempWords.push(find.words[tempRandom]);
+    find.splice(tempRandom,1); //delete word from room
+
+    tempRandom = Math.floor(Math.random() * find.words.length);
+    tempWords.push(find.words[tempRandom]);
+    find.splice(tempRandom,1); //delete word from room
+
+    return res.json({words: tempWords})
 });
 
 
@@ -38,7 +54,9 @@ io.on('connection', (socket) => {
                 time, //time on drawing
                 roundCount:0,//round counting
                 userCount:1, // user counting
+                currentName: "",
                 queue: 0, //count all users in queue
+                words,
                 users:[ //all users in room
                     {
                         id:socket.id,
@@ -80,16 +98,15 @@ io.on('connection', (socket) => {
             io.to(room).emit("startGame"); //start game
 
             //START ROUND
-            const currentRoom = rooms.find(el => el.name === room);
-            const obj = {
-                queue: currentRoom.queue,
-
-            };
-            io.to(room).emit("startRound",{});
+            const currentRoom = rooms.find(el => el.name === room); //
+            currentRoom.queue = currentRoom.users.length-1;//set count of users in this round
+            currentRoom.currentName = currentRoom.users[currentRoom.queue]; //set current user name
+            socket.emit("startRound",currentRoom.currentName); //send current user
+            //add security for users leave
         }
     });
     //startRound
-    socket.on("startRound",data => {
+    socket.on("startRound",room => {
 
     });
     //canvas

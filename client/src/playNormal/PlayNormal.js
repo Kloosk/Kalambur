@@ -2,6 +2,8 @@ import React,{useState} from 'react';
 import styled from 'styled-components';
 import {useHistory, useParams} from "react-router-dom";
 import {socket,initiateSocket} from "../hooks/socketHooks";
+import {useDispatch} from "react-redux";
+import {addUser} from "../redux";
 
 const Container = styled.div`
   display: flex;
@@ -13,6 +15,7 @@ const Container = styled.div`
   
 `;
 const PlayNormal = () => {
+    const dispatch = useDispatch();
     const history = useHistory();
     let { room } = useParams();
     const [name,setName] = useState("");
@@ -22,6 +25,7 @@ const PlayNormal = () => {
     const handleJoin = () => {
         if(!socket) initiateSocket();
         socket.emit("joinRoom",{room,name});
+        dispatch(addUser(name));
         history.push(`/normal/${room}`);
     };
     return (

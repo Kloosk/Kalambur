@@ -7,7 +7,7 @@ const Container = styled.div`
   height: 90%;
   width: 100%;
 `;
-const Canvas = ({state:{color,line}}) => {
+const Canvas = ({drawAbility,state:{color,line}}) => {
     let { room } = useParams();
     const containerRef = useRef(null);
     const canvasRef = useRef(null);
@@ -57,27 +57,33 @@ const Canvas = ({state:{color,line}}) => {
     },[line]);
 
     const startDrawing = ({nativeEvent}) => {
-        const {offsetX,offsetY} = nativeEvent;
-        //send data by websocket
-        socket.emit('startDraw',{x:offsetX,y:offsetY,color,line,room});
-        contextRef.current.beginPath();
-        contextRef.current.moveTo(offsetX,offsetY);
-        setIsDrawing(true);
+        if(drawAbility) {
+            const {offsetX, offsetY} = nativeEvent;
+            //send data by websocket
+            socket.emit('startDraw', {x: offsetX, y: offsetY, color, line, room});
+            contextRef.current.beginPath();
+            contextRef.current.moveTo(offsetX, offsetY);
+            setIsDrawing(true);
+        }
     };
     const finishDrawing = () => {
-        //send data by websocket
-        socket.emit('finishDraw',{room});
-        contextRef.current.closePath();
-        setIsDrawing(false);
+        if(drawAbility) {
+            //send data by websocket
+            socket.emit('finishDraw', {room});
+            contextRef.current.closePath();
+            setIsDrawing(false);
+        }
     };
     const draw = ({nativeEvent}) => {
-        if(!isDrawing) return;
-        const {offsetX,offsetY} = nativeEvent;
-        //send data by websocket
-        socket.emit('mouse',{x:offsetX,y:offsetY,color,line,room});
-        //draw line
-        contextRef.current.lineTo(offsetX,offsetY);
-        contextRef.current.stroke();
+        if(drawAbility) {
+            if (!isDrawing) return;
+            const {offsetX, offsetY} = nativeEvent;
+            //send data by websocket
+            socket.emit('mouse', {x: offsetX, y: offsetY, color, line, room});
+            //draw line
+            contextRef.current.lineTo(offsetX, offsetY);
+            contextRef.current.stroke();
+        }
     };
     return (
         <Container ref={containerRef}>

@@ -44,7 +44,7 @@ const ScoreBoard = () => {
         <Container>
             <H1>Wyniki</H1>
             {score && score.map(el => (
-                <Flex>
+                <Flex key={el.name}>
                     <Nick>{el.name}</Nick>
                     <Score>{el.score}</Score>
                 </Flex>
